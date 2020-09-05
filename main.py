@@ -32,4 +32,4 @@ def download_from_tube():
     return 'downloaded', 200
 
 
-app.run(debug=True)
+app.run()
