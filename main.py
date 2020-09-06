@@ -1,10 +1,13 @@
-from flask import Flask, send_from_directory, request
-from threading import Thread
 import youtube_dl
 import pathlib
 import uuid
+from flask import Flask, send_from_directory, request
+from threading import Thread
+
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 video_temp_path = str(pathlib.Path(__file__).parent.absolute()) + "/temp"
 
@@ -27,9 +30,20 @@ def download_from_tube():
     thread.start()
     thread.join()
 
-    send_from_directory(video_temp_path, filename=video_temp_filename, as_attachment=True)
-
-    return 'downloaded', 200
+    return {'filename': video_temp_filename}
 
 
-app.run()
+@app.route('/send_video_file/<video_temp_filename>', methods=['GET'])
+def send_video_file(video_temp_filename):
+    global video_temp_path
+    print(video_temp_path, video_temp_filename)
+    return send_from_directory(video_temp_path, filename=video_temp_filename, as_attachment=True)
+
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    return 'pong', 200
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
