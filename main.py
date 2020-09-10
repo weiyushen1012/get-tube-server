@@ -8,6 +8,7 @@ import logging
 from flask import Flask, send_from_directory, request
 from threading import Thread
 from flask_cors import CORS
+from pathlib import Path
 
 app = Flask(__name__)
 CORS(app)
@@ -47,10 +48,21 @@ def download_from_tube():
 def send_video_file(video_temp_filename):
     global video_temp_path
 
+    if not Path(f'{video_temp_path}/{video_temp_filename}').is_file():
+        return f'Error: File {video_temp_filename} does not exist.', 404
+
     delete_video_thread = Thread(target=delete_local_video, args=(video_temp_filename,))
     delete_video_thread.start()
 
     return send_from_directory(video_temp_path, filename=video_temp_filename, as_attachment=True)
+
+
+@app.route('/is_temp_file_exists/<video_temp_filename>', methods=['GET'])
+def is_temp_file_exists(video_temp_filename):
+    if not Path(f'{video_temp_path}/{video_temp_filename}').is_file():
+        return f'Error: File {video_temp_filename} does not exist.', 404
+
+    return f'File {video_temp_filename} exists', 200
 
 
 @app.route('/ping', methods=['GET'])
