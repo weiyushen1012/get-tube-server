@@ -10,8 +10,8 @@ from threading import Thread
 from flask_cors import CORS
 from pathlib import Path
 
-app = Flask(__name__)
-CORS(app)
+application = Flask(__name__)
+CORS(application)
 
 video_temp_path = str(pathlib.Path(__file__).parent.absolute()) + "/temp"
 
@@ -31,7 +31,7 @@ def delete_local_video(video_temp_filename):
     os.remove(f'{video_temp_path}/{video_temp_filename}')
 
 
-@app.route('/download_from_tube', methods=['POST'])
+@application.route('/download_from_tube', methods=['POST'])
 def download_from_tube():
     data = request.get_json()
     url = data['url']
@@ -44,7 +44,7 @@ def download_from_tube():
     return {'filename': video_temp_filename}
 
 
-@app.route('/send_video_file/<video_temp_filename>', methods=['GET'])
+@application.route('/send_video_file/<video_temp_filename>', methods=['GET'])
 def send_video_file(video_temp_filename):
     global video_temp_path
 
@@ -57,7 +57,7 @@ def send_video_file(video_temp_filename):
     return send_from_directory(video_temp_path, filename=video_temp_filename, as_attachment=True)
 
 
-@app.route('/is_temp_file_exists/<video_temp_filename>', methods=['GET'])
+@application.route('/is_temp_file_exists/<video_temp_filename>', methods=['GET'])
 def is_temp_file_exists(video_temp_filename):
     if not Path(f'{video_temp_path}/{video_temp_filename}').is_file():
         return f'Error: File {video_temp_filename} does not exist.', 404
@@ -65,10 +65,10 @@ def is_temp_file_exists(video_temp_filename):
     return f'File {video_temp_filename} exists', 200
 
 
-@app.route('/ping', methods=['GET'])
+@application.route('/ping', methods=['GET'])
 def ping():
     return 'pong', 200
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run()
