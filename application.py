@@ -33,7 +33,7 @@ def delete_local_video(video_temp_filename, delete_after):
 
 @application.route('/')
 def home():
-    return
+    return 'get-tube-server', 200
 
 
 @application.route('/download_from_tube', methods=['POST'])
