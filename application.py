@@ -31,7 +31,7 @@ def delete_local_video(video_temp_filename, delete_after):
     os.remove(f'{video_temp_path}/{video_temp_filename}')
 
 
-@application.route('/', methods=['GET'])
+@application.route('/')
 def home():
     return
 
