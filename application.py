@@ -24,11 +24,16 @@ def download_tube_to_local(url, video_temp_filename):
         ydl.download([url])
 
 
-def delete_local_video(video_temp_filename):
+def delete_local_video(video_temp_filename, delete_after):
     global video_temp_path
-    time.sleep(20)
+    time.sleep(delete_after)
     logging.info(msg=f'deleting temp file {video_temp_filename}')
     os.remove(f'{video_temp_path}/{video_temp_filename}')
+
+
+@application.route('/', methods=['GET'])
+def home():
+    return
 
 
 @application.route('/download_from_tube', methods=['POST'])
@@ -41,7 +46,10 @@ def download_from_tube():
     download_thread.start()
     download_thread.join()
 
-    return {'filename': video_temp_filename}
+    delete_video_thread = Thread(target=delete_local_video, args=(video_temp_filename, 310,))
+    delete_video_thread.start()
+
+    return {'filename': video_temp_filename}, 200
 
 
 @application.route('/send_video_file/<video_temp_filename>', methods=['GET'])
@@ -51,7 +59,7 @@ def send_video_file(video_temp_filename):
     if not Path(f'{video_temp_path}/{video_temp_filename}').is_file():
         return f'Error: File {video_temp_filename} does not exist.', 404
 
-    delete_video_thread = Thread(target=delete_local_video, args=(video_temp_filename,))
+    delete_video_thread = Thread(target=delete_local_video, args=(video_temp_filename, 20,))
     delete_video_thread.start()
 
     return send_from_directory(video_temp_path, filename=video_temp_filename, as_attachment=True)
